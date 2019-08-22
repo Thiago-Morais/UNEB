@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1566488268 source:c:\users\071820383\documents\lp1\getproduct\main.c
+	<stdio.h>
+	<stdlib.h>
+

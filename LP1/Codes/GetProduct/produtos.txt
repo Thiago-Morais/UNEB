@@ -1,0 +1,7 @@
+123456;coca cola;3.50
+234561;coca cola;3.50
+345612;coca cola;3.50
+456123;coca cola;3.50
+561234;coca cola;3.50
+123654;sacoca_cola;3.50
+612345;coca cola;3.50
