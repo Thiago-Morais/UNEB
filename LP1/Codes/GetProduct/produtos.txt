@@ -1,7 +1,7 @@
 123456;coca cola;3.50
 234561;coca cola;3.50
 345612;coca cola;3.50
-456123;coca cola;3.50
+456123;cossa_cola;8.60
 561234;coca cola;3.50
-123654;sacoca_cola;3.50
+123654;sacoca_cola;1.00
 612345;coca cola;3.50
