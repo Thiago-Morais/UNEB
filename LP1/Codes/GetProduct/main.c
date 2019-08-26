@@ -12,10 +12,18 @@ Guardar esse produto num carrinho
 
 typedef struct prod
 {
-    unsigned long cod;
-    char name[100];
-    float price;
+    unsigned long cod;                  //Codigo
+    char name[100];                     //Nome
+    float price;                        //Preço
 }Prod;
+
+typedef struct sale
+{
+    unsigned long productCode;          //Codigo do produto
+    float price;                        //Preco total do conjunto
+    size_t quantity;                    //Quantidade de produtos
+    struct sale* next;
+}Sale;
 
 typedef struct cartNode
 {
@@ -23,9 +31,10 @@ typedef struct cartNode
     struct cartNode *next;
 }CartNode;
 
-Prod* GetProdByCod(FILE *fp, unsigned long cod)         //Procura um produto referente a um codigo passado, armazena as informações em
+Prod* GetProdByCod(FILE *filePointer, unsigned long cod)         //Procura um produto referente a um codigo passado, armazena as informações em
 {
     prints("GetProdByCod");
+    printf("\nCode = %d\n", cod);
     /*
 
         Ler o primeiro undiggned long
@@ -41,29 +50,39 @@ Prod* GetProdByCod(FILE *fp, unsigned long cod)         //Procura um produto ref
     Prod *product = (Prod*) malloc(sizeof(Prod));
     unsigned long codComp;
 
-    fscanf(fp, "%lu", &codComp);    while(codComp != cod)
-    {        while(fgetc(fp) != '\n');
-        fscanf(fp, "%lu", &codComp);
+    fscanf(filePointer, " %lu", &codComp);
+    char aux;
+
+    /*
+    while(codComp != cod)                                   //Repete ate achar o codigo igual
+    {
+        while(fgetc(filePointer) != '\n');                      //Anda ate o final da linha
+        fscanf(filePointer, " %lu", &codComp);                  //Depois pega o codigo na linha de baixo
+    }
+    */
+
+    while(codComp != cod && aux != EOF)                     //Repete ate achar o codigo ou terminar o arquivo
+    {
+        do
+        {
+            aux = fgetc(filePointer);                               //anda um caracter
+        }
+        while(aux != '\n' && aux != EOF);                       //Anda ate o final da linha ou ate acabar o arquivo
+
+        if(aux == EOF){rewind(filePointer); return NULL;}
+
+        fscanf(filePointer, " %lu", &codComp);                  //Depois pega o codigo na linha de baixo
     }
 
-    fscanf(fp, ";%[^;];%f\n", product->name, &product->price);
+
+    fscanf(filePointer, " ;%[^;];%f\n", product->name, &product->price);
     product->cod = codComp;
 
-    //DEBUG
-    //PrintProduct(product);
-    //char prodDummy[100];
-    //printf("1 == \n%lu \n%s \n%.2f\n", product->cod, product->name, product->price);
-
-    //printf("\n%s\n",fgets(prodDummy, 100, fp));
-
-    //while(fgetc(fp) != '\n');
-
-    //printf("%c\n", fgetc(fp));
-    rewind(fp);
+    rewind(filePointer);
     return product;
 }
 
-Prod* GetProdInLine(FILE *fp)               //Pega as informações de um produto no inicio da linha, armazena num struct produto e retorna o ponteiro pra esser produto
+Prod* GetProdInLine(FILE *filePointer)               //Pega as informações de um produto no inicio da linha, armazena num struct produto e retorna o ponteiro pra esser produto
 {
     prints("GetProdInLine");
     /*
@@ -73,17 +92,42 @@ Prod* GetProdInLine(FILE *fp)               //Pega as informações de um produto 
     Retorna o ponteiro
     */
     Prod *product = (Prod*) malloc(sizeof(Prod));
-    fscanf(fp, "%lu;%[^;];%f\n", &product->cod, product->name, &product->price);
+    fscanf(filePointer, "%lu;%[^;];%f\n", &product->cod, product->name, &product->price);
     printf("1 == %lu \n%s \n%.2f\n", product->cod, product->name, product->price);
+
+    rewind(filePointer);
     return product;
 }
 
-void PrintProduct(Prod *product)
+unsigned long GetCode()
 {
-    prints("PrintProduct");
-    printf("\nProduct Code = %lu\n", product->cod);
-    printf("Product Name = %s \n", product->name);
-    printf("Product Price = %.2f\n", product->price);
+    //Digite o codigo do produto
+    system("cls");
+    printf("======================================\n");
+    printf("=                                    =\n");
+    printf("=     DIGITE O CODIGO DO PRODUTO     =\n");
+    printf("=                                    =\n");
+    printf("======================================\n");
+
+    unsigned long prodCod;
+    scanf("%lu", &prodCod);
+    return prodCod;
+}
+
+size_t GetQuantity()
+{
+    //Digite a quantidade
+    system("cls");
+    printf("======================================\n");
+    printf("=                                    =\n");
+    printf("=   DIGITE A QUANTIDADE DO PRODUTO   =\n");
+    printf("=                                    =\n");
+    printf("======================================\n");
+
+    size_t prodQuant;
+    scanf("%u", &prodQuant);
+
+    return prodQuant;
 }
 
 void AddProdInCart(Prod **prod, CartNode **cart)
@@ -99,48 +143,249 @@ void AddProdInCart(Prod **prod, CartNode **cart)
     newContent->next = NULL;
     newContent->content = prod;
 
-    if(!*cart) *cart = newContent;
-    else
+    if(!*cart) *cart = newContent;                                              //Carrinho vazio, adiciona no inicio
+    else                                                                        //Tem coisa no carrinho
     {
         CartNode *currentNode = *cart;
 
-        while(currentNode->next != NULL) currentNode = currentNode->next;
+        while(currentNode->next != NULL) currentNode = currentNode->next;           //Anda ate o final
 
-        currentNode->next = newContent;
+        currentNode->next = newContent;                                             //Coloca no final
+    }
+}
+//void AddSale(FILE *filePointer, Sale **start)
+void AddSale(Prod *product, size_t quantity, Sale **start)
+{
+    prints("AddProdSaleCart");
+    /*
+    Pedir um codigo
+    Procurar pelo produto
+    Validar o produto
+    Guardar o produto
+    Guardar o codigo do produto no Node
+
+    Pedir a quantidade
+    Guardar a quantidade no Node
+
+    Multiplicar a quantidade pelo preço
+    Guardar o preço no Node
+
+    Adicionar esse node a uma lista
+    */
+    Sale *newSet = (Sale*)malloc(sizeof(Sale));
+    /*
+    unsigned long code;
+    Prod *product;
+
+    code = GetCode();
+    product = GetProdByCod(filePointer, code);
+    */
+    newSet->productCode = product->cod;
+    newSet->quantity = quantity;    newSet->price = product->price * quantity;    newSet->next = NULL;
+    /*
+    newSet->productCode = code;
+    newSet->quantity = GetQuantity();
+    newSet->price = product->price * newSet->quantity;
+    newSet->next = NULL;
+    */
+    if(!*start) *start = newSet;                                              //Carrinho vazio, adiciona no inicio
+    else                                                                        //Tem coisa no carrinho
+    {
+        Sale *currentSale = *start;
+
+        while(currentSale->next != NULL) currentSale = currentSale->next;           //Anda ate o final
+
+        currentSale->next = newSet;                                             //Coloca no final
     }
 }
 
+void PrintProduct(Prod *product)
+{
+    prints("PrintProduct");
+
+    if(!product)
+    {
+        prints("Produto nao existe");
+        return;
+    }
+
+    printf("\nProduct Code = %lu\n", product->cod);
+    printf("Product Name = %s \n", product->name);
+    printf("Product Price = %.2f\n", product->price);
+}
+void PrintSaleNode(Sale *node)
+{
+    prints("SaleNode");
+
+    if(!node)
+    {
+        prints("Sale nao existe");
+        system("pause");
+        return;
+    }
+
+    printf("\nProduct Code = %lu\n", node->productCode);
+    printf("Product Amount = %u \n", node->quantity);
+    printf("Total Value = %.2f\n", node->price);
+}
 void PrintCart(CartNode **cart)
 {
+    system("cls");
     prints("PrintCart");
 
-    if (!cart) return;
+    if (!*cart)
+    {
+        prints("Carrinho vazio");
+        system("pause");
+        return;
+    }
 
     CartNode *curNode = *cart;
-
     while(curNode != NULL)
     {
         PrintProduct(curNode->content);
         curNode = curNode->next;
     }
+    system("pause");
+}
 
+void PrintSale(Sale **start)
+{
+    system("cls");
+    prints("PrintSale");
+
+    if (!*start)
+    {
+        prints("Carrinho vazio");
+        system("pause");
+        return;
+    }
+
+    Sale *curNode = *start;
+    while(curNode != NULL)
+    {
+        PrintSaleNode(curNode);
+        curNode = curNode->next;
+    }
+    system("pause");
+}
+
+void PrintSellMenu()
+{
+    system("cls");
+    printf("======================================\n");
+    printf("=                                    =\n");
+    printf("=           MENU DE VENDAS           =\n");
+    printf("=                                    =\n");
+    printf("= - SELECIONE UMA OPCAO              =\n");
+    printf("=                                    =\n");
+    printf("= 1 - MOSTRAR O CARRINHO             =\n");
+    printf("= 2 - ADICIONAR PRODUTO AO CARRINHO  =\n");
+    printf("= 3 - REMOVER PRODUTO DO CARRINHO    =\n");
+    printf("= 0 - FINALIZAR A COMPRA             =\n");
+    printf("=                                    =\n");
+    printf("======================================\n");
 }
 
 int main()
 {
-    FILE *fp = fopen("produtos.txt", "r");
+    FILE *filePointer = fopen("produtos.txt", "r");
     CartNode *cart = NULL;
+    Sale *saleCart = NULL;
+    int op = 1;
 
-    //GetProdInLine(fp);
-    //PrintProduct(GetProdByCod(fp,123654));
+    /*
+    char aux;
 
-    AddProdInCart(GetProdByCod(fp, 123654),&cart);
-    AddProdInCart(GetProdByCod(fp, 456123),&cart);
-    AddProdInCart(GetProdByCod(fp, 456123),&cart);
-    AddProdInCart(GetProdByCod(fp, 456123),&cart);
-    PrintCart(&cart);
+    while(aux != '\n' && aux != EOF)
+    {
+        aux = fgetc(filePointer);
+        printf("aux = (%c)\n", aux);
+    }
 
-    //printf("%c\n", fgetc(fp));
+    if(aux == EOF) debug(1);
+    else if(aux == '\n') debug(2);
+    else debug(3);
+
+    printf("%d\n", aux);
+    printf("%d\n", EOF);
+    system("pause");
+    */
+
+    while(op != 0)                                                      //Update
+    {
+        system("cls");
+
+        PrintSellMenu();
+        scanf(" %d", &op);
+        switch (op)
+        {
+            case 1:     //mostrar carrinho
+            {
+                //mostrar carrinho
+                //PrintCart(&cart);
+                PrintSale(&saleCart);
+                break;
+            }
+            case 2:     //adicionar produto ao carrinho
+            {
+                char validation = 'n';
+                unsigned long tempCod;
+                Prod *tempProd = NULL;
+
+                while(validation == 'n')                                //Ciclo de validação do produto
+                {
+                    system("cls");
+                    tempProd = GetProdByCod(filePointer, GetCode());        //Pede um codigo de produto e procura ele por esse codigo
+
+                    if(tempProd)                                            //Se o produto foi encontrado
+                    {
+                        system("cls");
+                        PrintProduct(tempProd);                                 //Mostra o produto
+
+                        printf("\nEsse eh o produto? (y/n)");                   //Pede confirmação
+                        scanf(" %c",&validation);
+
+                        while(validation != 'n' && validation != 'y')              //Se digitar algo não permitido
+                        {
+                            system("cls");
+                            printf("Opcao invalida\n");                                 //Informa o erro
+                            system("pause");
+
+                            system("cls");
+                            PrintProduct(tempProd);                                     //Mostra o produto de novo
+
+                            printf("\nEsse eh o produto? (y/n)");                       //Pede confirmação de novo
+                            scanf(" %c",&validation);
+                        }
+                    }
+                    else                                                    //Se o produto não foi encontrado
+                    {
+                        system("cls");
+                        prints("\nCodigo Invalido\n");
+                        system("pause");
+                    }
+                }
+                //AddProdInCart(GetProdByCod(filePointer, GetCode()), &cart);
+                //AddProdInCart(tempProd, &cart);
+                AddSale(tempProd, GetQuantity(), &saleCart);
+                break;
+            }
+            case 3:     //remover produto do carrinho
+            {
+
+                break;
+            }
+            case 0:     //sair
+            {
+                break;
+            }
+            default:    //opção invalida
+            {
+                break;
+            }
+        }
+    }
 
     return 0;
 }
