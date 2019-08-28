@@ -153,7 +153,7 @@ void AddProdInCart(Prod **prod, CartNode **cart)
         currentNode->next = newContent;                                             //Coloca no final
     }
 }
-//void AddSale(FILE *filePointer, Sale **start)
+
 void AddSale(Prod *product, size_t quantity, Sale **start)
 {
     prints("AddProdSaleCart");
@@ -199,6 +199,59 @@ void AddSale(Prod *product, size_t quantity, Sale **start)
     }
 }
 
+Sale* RemoveSale(Sale **cart)
+{
+    /*
+    Pedir o codigo do produto a ser removido
+    Procurar o produto no carrinho pelo codigo
+        Pegar um produto no carrinho
+        Comparar o codigo com o do produto
+        Se o codigo for igual
+            Retirar ele
+        Se o codigo for diferente
+            Ir para o proximo produto
+    Remover o produto do carrinho
+    */
+    unsigned long cod = GetCode();
+
+    if(!*cart)
+    {
+        printf("\nCarrinho vazio\n");
+        system("pause");
+        return NULL;
+    }
+
+    Sale *currentSale = *cart, *prev = NULL;
+
+    while(currentSale && currentSale->productCode != cod)
+    {
+        prev = currentSale;
+        currentSale = currentSale->next;
+    }
+
+    if(!currentSale)
+    {
+        prints("Codigo do produto nao esta no carrinho");
+        system("pause");
+        return;
+    }
+    else        //Retirar
+    {
+        //Se estiver no começo
+        if(currentSale == *cart)
+        {
+            prev = currentSale;
+            *cart = currentSale->next;
+        }
+        //Se estiver no meio ou no final
+        else
+            prev->next = currentSale->next;
+
+        system("pause");
+        return(currentSale);
+    }
+
+}
 void PrintProduct(Prod *product)
 {
     prints("PrintProduct");
@@ -292,7 +345,7 @@ int main()
     FILE *filePointer = fopen("produtos.txt", "r");
     CartNode *cart = NULL;
     Sale *saleCart = NULL;
-    int op = 1;
+    char op = '1';
 
     /*
     char aux;
@@ -317,17 +370,23 @@ int main()
         system("cls");
 
         PrintSellMenu();
-        scanf(" %d", &op);
+
+        fflush(stdin);        scanf(" %d", &op);
+        fflush(stdin);
+        /*
+        printf("%d\n", op);
+        system("pause");
+        */
         switch (op)
         {
-            case 1:     //mostrar carrinho
+            case '1':     //mostrar carrinho
             {
                 //mostrar carrinho
                 //PrintCart(&cart);
                 PrintSale(&saleCart);
                 break;
             }
-            case 2:     //adicionar produto ao carrinho
+            case '2':     //adicionar produto ao carrinho
             {
                 char validation = 'n';
                 unsigned long tempCod;
@@ -371,17 +430,20 @@ int main()
                 AddSale(tempProd, GetQuantity(), &saleCart);
                 break;
             }
-            case 3:     //remover produto do carrinho
+            case '3':     //remover produto do carrinho
             {
-
+                RemoveSale(&saleCart);
                 break;
             }
-            case 0:     //sair
+            case '0':     //sair
             {
                 break;
             }
             default:    //opção invalida
             {
+                system("cls");
+                prints("\nOpcao invalida\n");
+                system("pause");
                 break;
             }
         }
