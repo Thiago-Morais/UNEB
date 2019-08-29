@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define debug(a) printf("check_%d\n", a)
-#define prints(a) printf("%s\n", a);
-#define pause system("pause");
+#define prints(a) printf("%s\n", a)
+#define pause system("pause")
+#define clear system("cls")
 /*
 Pedir codigo do produto
 Buscar pelo codigo no produos.txt
@@ -24,11 +25,6 @@ typedef struct sale
     size_t quantity;                    //Quantidade de produtos
     struct sale* next;
 }Sale;
-typedef struct cartNode
-{
-    struct prod *content;
-    struct cartNode *next;
-}CartNode;
 
 Prod* GetProdByCod(FILE *filePointer, unsigned long cod)         //Procura um produto referente a um codigo passado, armazena as informações em
 {
@@ -100,7 +96,7 @@ Prod* GetProdInLine(FILE *filePointer)               //Pega as informações de 
 unsigned long GetCode()
 {
     //Digite o codigo do produto
-    system("cls");
+    clear;
     printf("======================================\n");
     printf("=                                    =\n");
     printf("=     DIGITE O CODIGO DO PRODUTO     =\n");
@@ -114,7 +110,7 @@ unsigned long GetCode()
 size_t GetQuantity()
 {
     //Digite a quantidade
-    system("cls");
+    clear;
     printf("======================================\n");
     printf("=                                    =\n");
     printf("=   DIGITE A QUANTIDADE DO PRODUTO   =\n");
@@ -127,29 +123,6 @@ size_t GetQuantity()
     return prodQuant;
 }
 
-void AddProdInCart(Prod **prod, CartNode **cart)
-{
-    prints("AddProdInCart");
-    /*
-    Verificar se cart está vazio
-    Senão
-        Ir ate o final
-    Inserir no final
-    */
-    CartNode *newContent = (CartNode*)malloc(sizeof(CartNode));
-    newContent->next = NULL;
-    newContent->content = *prod;
-
-    if(!*cart) *cart = newContent;                                              //Carrinho vazio, adiciona no inicio
-    else                                                                        //Tem coisa no carrinho
-    {
-        CartNode *currentNode = *cart;
-
-        while(currentNode->next != NULL) currentNode = currentNode->next;           //Anda ate o final
-
-        currentNode->next = newContent;                                             //Coloca no final
-    }
-}
 void AddSale(Prod *product, size_t quantity, Sale **start)
 {
     prints("AddProdSaleCart");
@@ -316,29 +289,9 @@ void PrintSaleNode(Sale *node)
     printf("Product Amount = %u \n", node->quantity);
     printf("Total Value = %.2f\n", node->price);
 }
-void PrintCart(CartNode **cart)
-{
-    system("cls");
-    prints("PrintCart");
-
-    if (!*cart)
-    {
-        prints("Carrinho vazio");
-        pause;
-        return;
-    }
-
-    CartNode *curNode = *cart;
-    while(curNode != NULL)
-    {
-        PrintProduct(curNode->content);
-        curNode = curNode->next;
-    }
-    pause;
-}
 void PrintSale(Sale **start)
 {
-    system("cls");
+    clear;
     prints("PrintSale");
 
     if (!*start)
@@ -358,7 +311,7 @@ void PrintSale(Sale **start)
 }
 void PrintSellMenu()
 {
-    system("cls");
+    clear;
     printf("======================================\n");
     printf("=                                    =\n");
     printf("=           MENU DE VENDAS           =\n");
@@ -380,27 +333,10 @@ int main()
     Sale *saleCart = NULL;
     char op = '1';
 
-    /*
-    char aux;
-
-    while(aux != '\n' && aux != EOF)
+    //Update
+    while(op != '0')
     {
-        aux = fgetc(filePointer);
-        printf("aux = (%c)\n", aux);
-    }
-
-    if(aux == EOF) debug(1);
-    else if(aux == '\n') debug(2);
-    else debug(3);
-
-    printf("%d\n", aux);
-    printf("%d\n", EOF);
-    pause;
-    */
-
-    while(op != '0')                                                      //Update
-    {
-        system("cls");
+        clear;
 
         PrintSellMenu();
 
@@ -413,27 +349,26 @@ int main()
         */
         switch (op)
         {
-            case '1':     //mostrar carrinho
+            //mostrar carrinho
+            case '1':
             {
-                //mostrar carrinho
-                //PrintCart(&cart);
                 PrintSale(&saleCart);
                 break;
             }
-            case '2':     //adicionar produto ao carrinho
+            //adicionar produto ao carrinho
+            case '2':
             {
                 char validation = 'n';
-                //unsigned long tempCod;
                 Prod *tempProd = NULL;
 
                 while(validation == 'n')                                //Ciclo de validação do produto
                 {
-                    system("cls");
+                    clear;
                     tempProd = GetProdByCod(filePointer, GetCode());        //Pede um codigo de produto e procura ele por esse codigo
 
                     if(tempProd)                                            //Se o produto foi encontrado
                     {
-                        system("cls");
+                        clear;
                         PrintProduct(tempProd);                                 //Mostra o produto
 
                         printf("\nEsse eh o produto? (y/n)");                   //Pede confirmação
@@ -441,11 +376,11 @@ int main()
 
                         while(validation != 'n' && validation != 'y')              //Se digitar algo não permitido
                         {
-                            system("cls");
+                            clear;
                             printf("Opcao invalida\n");                                 //Informa o erro
                             pause;
 
-                            system("cls");
+                            clear;
                             PrintProduct(tempProd);                                     //Mostra o produto de novo
 
                             printf("\nEsse eh o produto? (y/n)");                       //Pede confirmação de novo
@@ -454,7 +389,7 @@ int main()
                     }
                     else                                                    //Se o produto não foi encontrado
                     {
-                        system("cls");
+                        clear;
                         prints("\nCodigo Invalido\n");
                         pause;
                     }
@@ -476,7 +411,7 @@ int main()
             }
             default:    //opção invalida
             {
-                system("cls");
+                clear;
                 prints("\nOpcao invalida\n");
                 pause;
                 break;
