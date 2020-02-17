@@ -7,16 +7,16 @@
 Criar arvore
 */
 
-typedef struct node
+typedef struct branch
 {
     int value;
-    struct node *right;
-    struct node *left;
-}Node;
+    struct branch *right;
+    struct branch *left;
+}Branch;
 
-Node* NewNode (int value)
+Branch* NewBranch (int value)
 {
-    Node *newLeaf = (Node*)malloc(sizeof(Node));
+    Branch *newLeaf = (Branch*)malloc(sizeof(Branch));
 
     newLeaf->value = value;
     newLeaf->right = NULL;
@@ -24,12 +24,12 @@ Node* NewNode (int value)
     return newLeaf;
 }
 
-void PrintTree(Node* in)
+void PrintBranch(Branch* in)
 {
     printf("A arvore esta assim:\n");
     PrintLeafs(in, 0);
 }
-void PrintLeafs(Node* in, int space)
+void PrintLeafs(Branch* in, int space)
 {
     if(!in) return;
 
@@ -39,16 +39,16 @@ void PrintLeafs(Node* in, int space)
 
     //Imprimir com o espaço
     for(int i = COUNT; i < space; i++) printf(" ");
-    printf("%d\n", in->value);
+    printf("%d---\n", in->value);
 
     PrintLeafs(in->left, space);
 }
 
-short AddAsLeafIn(int value, Node** in)
+short AddAsLeafIn(int value, Branch** in)
 {
     if(!*in)                            //Checar se a Arvore esta vazia
     {
-        *in = NewNode(value);
+        *in = NewBranch(value);
         return 1;
     }
 
@@ -59,39 +59,60 @@ short AddAsLeafIn(int value, Node** in)
     return 0;
 }
 
-Node* Remove(int value)
+Branch* Remove(Branch** root, int value)
 {
     /*
     Procurar pelo valor na arvore
-    Se achar
+    Se achar (removeBranch)
         Verificar se ele tem filhos
-        Remover o no
-        Retornar o no
+        Se não tiver
+            Remover o no
+            Retornar o no
+        Se tiver
+            Procurar pelo menor do maior (substituto)
+                Anda um galho a direita
+                Anda pela esquerda ate nao poder mais
+            Substituir removeBranch por substituto
+                Copiar nos a esquerda e direita de removeBranch e colocar em substituto
+                O no que aponta para removeBranch agora aponta substituto
+            Retornar removeBranch
     Se não achar
         Retorna NULL
     */
+    /*
+
+    */
+    if(!*root) return NULL;
+
+    Branch *seek = *root, *prev = NULL;
+
+    while (seek->value != value)
+    {
+        prev = seek;
+        seek = seek->left;
+    }
 }
 int main()
 {
-    Node *root = NULL;
+    Branch *root = NULL;
     int op = 999;
 
     while(op)
     {
         system("cls");
-        printf("Digite a folha:");        scanf(" %d",&op);
+        printf("Digite a folha a adicionar na arvore:");        scanf(" %d",&op);
         AddAsLeafIn(op, &root);
-        PrintTree(root);        system("pause");
+        PrintBranch(root);        system("pause");
     }
     /*
-    Node *root = NewNode(2);
+    Branch *root = NewBranch(2);
 
-    root->left = NewNode(1);
-    root->right = NewNode(3);
+    root->left = NewBranch(1);
+    root->right = NewBranch(3);
 
-    root->left->left = NewNode(4);
+    root->left->left = NewBranch(4);
     */
-    //PrintTree(root);
+    //PrintBranch(root);
 
     return 0;
 }
