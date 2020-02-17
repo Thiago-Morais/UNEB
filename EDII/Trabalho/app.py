@@ -1,6 +1,11 @@
 from typing import List
 
 
+from os import system, name
+
+# ***** B TREE *****
+
+
 class BTreeNode:
     max = 4
 
@@ -37,6 +42,9 @@ class Element:
         self.branchLeft = BTreeNode()
         self.branchRight = BTreeNode()
 
+# ***** FUNÇÕES AUXILIARES *****
+#                   ** FORMAT **
+
 
 def formatStr(string=str(), max=int(), fill=' '):
     if (len(string) < max):
@@ -50,33 +58,28 @@ def formatCode(code=str()):
     return formatStr(code, 8, '0')
 
 
-def newGenericLine(lines=list()):
-    codigo = '*' * 8
-    lines.append(codigo + ';')
-    nome = '*' * 30
-    lines.append(nome + ';')
-    preco = '*' * 7
-    lines.append(preco + ';')
-    ingredientes = '*' * 150
-    lines.append(ingredientes + ';')
-    categoria = '*' * 80
-    lines.append(categoria + ';')
-    disponivel = '*' * 1
-    lines.append(disponivel + ';')
-    lines.append('\n')
-
-
 def formatToWrite(l=[]):
     newList = []
     for i in l:
         newList.append(i + ';')
     newList.append('\n')
     return newList
+#                   ** OUTROS **
+
+
+def getProducts(filename="soy akivu.txt"):
+    file = open(filename, 'r')
+    products = file.readlines()
+    return products
+
+
+def getCode():
+    return formatStr(str(int(input('Digite o codigo (apenas numeros): '))), 8, '0')
 
 
 def newProd():
     l: List[str] = []
-    l.append(formatStr(str(int(input('Digite o codigo (apenas numeros): '))), 8, '0'))
+    l.append(getCode())
     l.append(formatStr(input('Digite o nome: '), 30, ' '))
     l.append(formatStr(str(float(input('Digite o preço: '))), 7, '0'))
     l.append(formatStr(
@@ -103,6 +106,52 @@ def searchCodeIn(prodCod=str(), prodList=[]):
         if (curCod == prodCod):
             return i
     return -1
+
+
+def clear():
+    if(name == 'nt'):
+        _ = system("cls")
+    else:
+        _ = system("clear")
+
+
+def newGenericLine(lines=list()):
+    codigo = '*' * 8
+    lines.append(codigo + ';')
+    nome = '*' * 30
+    lines.append(nome + ';')
+    preco = '*' * 7
+    lines.append(preco + ';')
+    ingredientes = '*' * 150
+    lines.append(ingredientes + ';')
+    categoria = '*' * 80
+    lines.append(categoria + ';')
+    disponivel = '*' * 1
+    lines.append(disponivel + ';')
+    lines.append('\n')
+
+# ***** FUNÇÕES PRINCIPAIS *****
+
+
+def printMenu():
+    print("1 - Mostrar todos os produtos")
+    print("2 - Mostrar um produto")
+    print("3 - Adicionar produto")
+    print("4 - Alterar produto")
+    print("5 - Remover produto")
+    print("0 - Sair")
+
+
+def showAllProd():
+    pass
+
+
+def showProd(code=int()):
+    products = getProducts()
+    code = getCode()
+    prod = searchCodeIn(code, products)
+    if (prod != -1):
+        print(prod)
 
 
 def addProd(filename="soy akivu.txt"):
@@ -161,4 +210,34 @@ escrever o nome
 escrever os ingrdiente
 escrever o valor
 """
-changeProd(input('digite codigo a trocar: '))
+#changeProd(input('digite codigo a trocar: '))
+
+# **** MENU ****
+
+"""
+Perguntar o que quer fazer
+Ver os produtos
+Adicionar produto
+Alterar produto
+Remover produto
+Sair
+"""
+op = ' '
+while(op != '0'):
+    printMenu()
+    op = input('Digite a opção: ')
+    if (op == '0'):  # Sair
+        break
+    elif(op == '1'):  # Mostrar todos produtos
+        showAllProd()
+    elif(op == '2'):  # Mostrar unico produto
+        showProd()
+    elif(op == '3'):  # Adicionar produto
+        addProd()
+    elif(op == '4'):  # Alterar produto
+        changeProd()
+    elif(op == '5'):  # Remover produto
+        removProd()
+    else:  # Opcao invalida
+        pass
+    clear()
