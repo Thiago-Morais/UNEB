@@ -42,7 +42,79 @@ class Element:
         self.branchLeft = BTreeNode()
         self.branchRight = BTreeNode()
 
+
+class Product():
+
+    code = int()
+    name = str()
+    ingred = []
+    price = float()
+    tags = []
+    available = bool()
+
+
+# ***** FUNÇÕES PRINCIPAIS *****
+
+
+def showAllProd():
+    pass
+
+
+def showProd(code=int()):
+    products = getProducts()
+    code = getCode()
+    prod = searchProdByCodeIn(code, products)
+    if (prod != -1):
+        print('produto = '+str(prod))
+
+
+def addProd(filename="soy akivu.txt"):
+    file = open(filename, 'a')
+
+    product = newProd()
+    # file.writelines(formatToWrite(product))
+    file.write(formatProduct(product))
+
+    file.close()
+
+
+def changeProd(prodCod=str(), filename="soy akivu.txt"):
+    prodCod = formatCode(prodCod)
+
+    file = open(filename, 'r')
+    allProdAsLines = file.readlines()
+
+    prodCod = getCode()
+    #prodAsLine = searchProdByCodeIn(prodCod, allProdAsLines)
+    prodIndex = getProdIndexByCodeIn(prodCod, allProdAsLines)
+    # if (prodAsLine != -1):  # produto encontrado
+    if (prodIndex != -1):  # produto encontrado
+        print("produto encontrado")
+        pause()
+        clear()
+        print("Digite um novo produto: ")
+        #allProdAsLines[prodAsLine] = newProd()
+        allProdAsLines[prodIndex] = formatProduct(newProd())
+        file = open(filename, 'w')
+        print(allProdAsLines)
+        file.writelines(allProdAsLines)
+    else:
+        print("produto não encontrado")
+    file.close()
+
+
+def removProd(filename="soy akivu.txt"):
+    pass
+
+    #   int *keys;  // An array of keys
+    #   int t;      // Minimum degree (defines the range for number of keys)
+    #   BTreeNode **C; // An array of child pointers
+    #   int n;     // Current number of keys
+    #   bool leaf; // Is true when node is leaf. Otherwise false
+
+
 # ***** FUNÇÕES AUXILIARES *****
+
 #                   ** FORMAT **
 
 
@@ -50,12 +122,31 @@ def formatStr(string=str(), max=int(), fill=' '):
     if (len(string) < max):
         string = fill * max + string
     string = string[-max:]
-    print(string)
     return string
 
 
-def formatCode(code=str()):
-    return formatStr(code, 8, '0')
+def formatCode(code=int()):
+    return formatStr(str(code), 8, '0')
+
+
+def formatName(name=str()):
+    return formatStr(str(name), 80, ' ')
+
+
+def formatPrice(price=float()):
+    return formatStr(str(code), 8, '0')
+
+
+def formatIngred(code=int()):
+    return formatStr(str(code), 150, ' ')
+
+
+def formatTags(code=str()):
+    return formatStr(str(code), 80, ' ')
+
+
+def formatAvail(available=bool()):
+    return formatStr(str(available), 5, ' ')
 
 
 def formatToWrite(l=[]):
@@ -64,7 +155,19 @@ def formatToWrite(l=[]):
         newList.append(i + ';')
     newList.append('\n')
     return newList
-#                   ** OUTROS **
+
+
+def formatProduct(prod=Product()):
+    code = formatCode(prod.code)
+    name = formatName(prod.name)
+    price = formatName(prod.price)
+    ingred = formatName(prod.ingred)
+    tags = formatName(prod.tags)
+    available = formatName(prod.available)
+    return"{};{};{};{};{};{};\n".format(code, name, price, ingred, tags, available)
+
+
+#                   ** GETS **
 
 
 def getProducts(filename="soy akivu.txt"):
@@ -74,11 +177,31 @@ def getProducts(filename="soy akivu.txt"):
 
 
 def getCode():
-    return formatStr(str(int(input('Digite o codigo (apenas numeros): '))), 8, '0')
+    # return formatStr(str(int(input('Digite o codigo (apenas numeros): '))), 8, '0')
+    try:
+        a = int(input('Digite o codigo (apenas numeros): '))
+        return a
+    except ValueError:
+        print("O codigo deve conter apenas numeros")
+        return getCode()
+
+
+def getProdIndexByCodeIn(code=int(), allProd=[]):           # -1 = not found
+    for i in range(len(allProd)):
+        curCod = allProd[i][:8]
+        print('curCod = '+curCod)
+        if (int(curCod) == code):
+            return i
+    return -1
+#                   ** OUTROS **
+
+
+def pause():
+    input('Press Enter to Continue...')
 
 
 def newProd():
-    l: List[str] = []
+    """ l: List[str] = []
     l.append(getCode())
     l.append(formatStr(input('Digite o nome: '), 30, ' '))
     l.append(formatStr(str(float(input('Digite o preço: '))), 7, '0'))
@@ -87,10 +210,47 @@ def newProd():
     l.append(formatStr(
         input("Digite as categorias (separadas por virgula ',' ): "), 80, ' '))
     l.append(formatStr(input('Digite se está disponivel [s/n] '), 1, ' '))
-    return l
+    return l """
+    prod = Product()
+    prod.code = int(input('Digite o codigo (apenas numeros): '))
+    prod.name = formatStr(input('Digite o nome: '), 30, ' ')
+    prod.price = float(input('Digite o preço: '))
+
+    # ** GET INGREDIENTS **
+    ingred = []
+    op = 's'
+    while (op != 'n'):
+        if (op == 's'):
+            ingred.append(input('Digite o ingrediente: '))
+        else:
+            print('opção invalida')
+        op = input('Adicionar outro ingrediente? [s/n]')
+    prod.ingred = ingred
+
+    # ** GET TAGS**
+    tags = []
+    op = 's'
+    while (op != 'n'):
+        if (op == 's'):
+            ingred.append(input('Digite a categoria: '))
+        else:
+            print('opção invalida')
+        op = input('Adicionar outra categoria? [s/n]')
+    prod.tags = tags
+
+    available = str()
+    while (available != 's' and available != 'n'):
+        available = input('Este produto está disponivel?[s/n]')
+        if(available == 's'):
+            prod.available = True
+        elif(available == 'n'):
+            prod.available = False
+        else:
+            print('opção invalida')
+    return prod
 
 
-def searchCodeIn(prodCod=str(), prodList=[]):
+def searchProdByCodeIn(prodCod=int(), prodList=[]):         # -1 = not found
     """
     procurar o produto na lista pelo codigo
     achar o codigo na linha
@@ -103,8 +263,8 @@ def searchCodeIn(prodCod=str(), prodList=[]):
     """
     for i in range(len(prodList)):
         curCod = prodList[i][:8]
-        if (curCod == prodCod):
-            return i
+        if (int(curCod) == prodCod):
+            return prodList[i]
     return -1
 
 
@@ -130,7 +290,8 @@ def newGenericLine(lines=list()):
     lines.append(disponivel + ';')
     lines.append('\n')
 
-# ***** FUNÇÕES PRINCIPAIS *****
+
+# ***** PRINTS *****
 
 
 def printMenu():
@@ -142,52 +303,14 @@ def printMenu():
     print("0 - Sair")
 
 
-def showAllProd():
-    pass
-
-
-def showProd(code=int()):
-    products = getProducts()
-    code = getCode()
-    prod = searchCodeIn(code, products)
-    if (prod != -1):
-        print(prod)
-
-
-def addProd(filename="soy akivu.txt"):
-    file = open(filename, 'a')
-
-    product = newProd()
-    file.writelines(formatToWrite(product))
-
-    file.close()
-
-
-def changeProd(prodCod=str(), filename="soy akivu.txt"):
-    prodCod = formatCode(prodCod)
-
-    file = open(filename, 'r')
-    products = file.readlines()
-    prodLine = searchCodeIn(prodCod, products)
-    if (prodLine != -1):  # produto encontrado
-        print("produto encontrado")
-        products[prodLine] = newProd()
-        file = open(filename, 'w')
-        print(products)
-        file.writelines(products)
-    else:
-        print("produto não encontrado")
-    file.close()
-
-
-def removProd(filename="soy akivu.txt"):
-    pass
-
-    #   int *keys;  // An array of keys
-    #   int t;      // Minimum degree (defines the range for number of keys)
-    #   BTreeNode **C; // An array of child pointers
-    #   int n;     // Current number of keys
-    #   bool leaf; // Is true when node is leaf. Otherwise false
+def printProd(prod=Product()):
+    print(vars(prod))
+    print('code = ' + str(prod.code))
+    print('name = ' + str(prod.name))
+    print('ingrediente = ' + str(prod.ingred))
+    print('price = ' + str(prod.price))
+    print('tags = ' + str(prod.tags))
+    print('available = ' + str(prod.available))
 
 
 root = BTreeNode()
@@ -238,6 +361,11 @@ while(op != '0'):
         changeProd()
     elif(op == '5'):  # Remover produto
         removProd()
+    elif(op == 'd'):  # Debug
+        prod = Product()
+        # print(vars(prod))
+        printProd(prod)
     else:  # Opcao invalida
         pass
+    pause()
     clear()
