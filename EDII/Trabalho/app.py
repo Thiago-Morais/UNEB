@@ -232,7 +232,7 @@ def newProd():
     op = 's'
     while (op != 'n'):
         if (op == 's'):
-            ingred.append(input('Digite a categoria: '))
+            tags.append(input('Digite a categoria: '))
         else:
             print('opção invalida')
         op = input('Adicionar outra categoria? [s/n]')
